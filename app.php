@@ -11,11 +11,16 @@ class Controller {
     * @param $verb HTTP verb
     * @param $collection collection name
     * @param $entry_id entry ID
+    * @param $code outgoing HTTP return code
+    * @param $return HTTP response data
     */
-  public static function handle__users($verb, $collection, $entry_id) {
+  public static function handle__users($verb, $collection, $entry_id,
+       &$code, &$return) {
+
     switch ($verb) {
       case 'GET':
-        echo json_encode(Data::$users);
+        $code = 200;
+        $return = json_encode(Data::$users);
         break;
 
       case 'POST':
@@ -26,17 +31,28 @@ class Controller {
         $data = json_decode($body, true);
 
         $data['password'] = md5($data['password']);
-        Data::addOrUpdateUser($data);
+        $status = Data::addOrUpdateUser($data);
 
-        Data::save();
+        if ($status) {
+          Data::save();
+          $code = 200;
+        } else {
+          $code = 400;
+        }
         break;
 
       case 'DELETE':
         if (empty($entry_id)) {
           break;
         }
-        Data::deleteUser($entry_id);
-        Data::save();
+        $status = Data::deleteUser($entry_id);
+
+        if ($status) {
+          $code = 200;
+          Data::save();
+        } else {
+          $code = 400;
+        }
         break;
     }
   }
@@ -60,14 +76,20 @@ AU::assignRestCollectionAndId($collection, $entry_id);
 // Construct name of handler
 $method = 'handle__' . $collection;
 
+$code = 200;
+$return = '';
+
 try {
   Data::initialize();
 
   // Invoke appropriate handler
   call_user_func_array( array('Controller', $method),
-    array($verb, $collection, $entry_id));
+    array($verb, $collection, $entry_id, &$code, &$return));
 
+  http_response_code($code);
 } catch(Exception $e) {
+  http_response_code('400');
 }
 
+echo $return
 ?>
