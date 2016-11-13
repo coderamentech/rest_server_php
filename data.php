@@ -49,9 +49,14 @@
      * @param $id entry ID
      */
     public static function deleteUser($id) {
+      if (empty(Data::$users[$id])) {
+        return false;
+      }
+
       try {
         unset(Data::$users[$id]);
       } catch (Exception $e) {
+        return false;
       }
 
       return true;
