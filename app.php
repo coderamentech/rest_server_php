@@ -22,6 +22,30 @@ class Controller {
   }
 
   /**
+   * Handles process of sessions collection.
+   *
+   * @param $verb HTTP verb
+   * @param $collection collection name
+   * @param $entry_id entry ID
+   * @param $code outgoing HTTP return code
+   * @param $return HTTP response data
+   */
+  public static function handle__sessions($verb, $collection, $entry_id,
+       &$code, &$return) {
+
+    $email = $_POST['email'];
+    $pass = $_POST['password'];
+    $status = Data::isUserExist($email, md5($pass));
+
+    if ($status) {
+      Data::save();
+      $code = 200;
+    } else {
+      $code = 401;
+    }
+  }
+
+  /**
    * Handles process of user collection.
    *
    * @param $verb HTTP verb
@@ -82,6 +106,9 @@ AU::enableErrors();
 // Throw exceptions for errors
 AU::enableThrowingExceptionsForErrors();
 
+// Echo CORS headers that are super relaxed
+AU::echoSuperLaxedCorsHeaders();
+
 $verb = $_SERVER['REQUEST_METHOD'];
 
 // Fetch REST collection and entity ID
@@ -97,9 +124,13 @@ $return = '';
 
 Data::initialize();
 
-if (!($collection == 'users' && $verb == 'POST')) {
-  Controller::enforceBasicAuth();
-}
+// if (!($collection == 'users' && $verb == 'POST')) {
+//   Controller::enforceBasicAuth();
+// }
+
+// if (empty($collection)) {
+//   exit;
+// }
 
 try {
   // Invoke appropriate handler
@@ -111,5 +142,5 @@ try {
   http_response_code('400');
 }
 
-echo $return
+echo $return;
 ?>
