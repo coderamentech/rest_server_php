@@ -62,6 +62,21 @@ class AssortedUtil
   }
 
   /**
+   * Spits out headers to enable cross domain access
+   */
+  public static function echoSuperLaxedCorsHeaders() {
+    // header("Access-Control-Allow-Credentials: true");
+    // header("Access-Control-Allow-Origin: *");
+    // header("Access-Control-Allow-Methods: PUT, GET, POST, DELETE, OPTIONS");
+    // header("Access-Control-Allow-Headers: Origin, Authorization, X-Requested-With, Content-Type, Accept");
+    header("Access-Control-Allow-Credentials: true");
+    header("Access-Control-Allow-Origin: *");
+    header("Access-Control-Allow-Methods: *");
+    header("Access-Control-Allow-Headers: *");
+    header('Access-Control-Max-Age: 0');
+  }
+
+  /**
    * Gets value of the specified variable, if unset, default value
    * would be used instead.
    *
