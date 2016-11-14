@@ -69,21 +69,22 @@
      */
     public static function addOrUpdateUser($user) {
       $entries = Data::$users;
-      $len = count($entries);
-      $index = $len;
+      $existing = false;
 
       // Traverse entries
-      for ($i = 0; $i < $len; $i++) {
-        $entry = $entries[$i];
+      foreach ($entries as $i => $entry) {
 
         // Get index of matching entry
         if ($entry['email'] == $user['email']) {
-          $len = $i;
+          $existing = true;
+          Data::$users[$i] = $user;
           break;
         }
       }
 
-      Data::$users[$len] = $user;
+      if ($existing == false) {
+          Data::$users[] = $user;
+      }
 
       return true;
     }
