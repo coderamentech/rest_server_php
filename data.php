@@ -87,6 +87,33 @@
 
       return true;
     }
+
+    /**
+     * Checks if the user associated with the corresponding
+     * email and password exists.
+     *
+     * @param $email user email
+     * @param $pass user password
+     *
+     * @return true, when entry is found; otherwise, false
+     */
+    public static function isUserExist($email, $pass) {
+      $entries = Data::$users;
+      $found = false;
+
+      // Traverse entries
+      foreach ($entries as $i => $entry) {
+        // Get index of matching entry
+        if ($entry['email'] == $email &&
+             $entry['password'] == $pass) {
+          $found = true;
+          break;
+        }
+      }
+
+      return $found;
+    }
+
   }
 
 ?>
