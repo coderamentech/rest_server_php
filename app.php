@@ -5,15 +5,31 @@ require_once 'data.php';
 
 class Controller {
 
+  public static function enforceBasicAuth() {
+
+    $flag = false;
+    if (isset($_SERVER['PHP_AUTH_USER'])) {
+      $pass = $_SERVER['PHP_AUTH_PW'];
+      $email = $_SERVER['PHP_AUTH_USER'];
+      $flag = Data::isUserExist($email, md5($pass));
+    }
+
+    if ($flag == false) {
+      header('WWW-Authenticate: Basic realm="App Realm"');
+      header('HTTP/1.0 401 Unauthorized');
+      exit;
+    }
+  }
+
   /**
-    * Handles process of user collection.
-    *
-    * @param $verb HTTP verb
-    * @param $collection collection name
-    * @param $entry_id entry ID
-    * @param $code outgoing HTTP return code
-    * @param $return HTTP response data
-    */
+   * Handles process of user collection.
+   *
+   * @param $verb HTTP verb
+   * @param $collection collection name
+   * @param $entry_id entry ID
+   * @param $code outgoing HTTP return code
+   * @param $return HTTP response data
+   */
   public static function handle__users($verb, $collection, $entry_id,
        &$code, &$return) {
 
@@ -79,9 +95,13 @@ $method = 'handle__' . $collection;
 $code = 200;
 $return = '';
 
-try {
-  Data::initialize();
+Data::initialize();
 
+if (!($collection == 'users' && $verb == 'POST')) {
+  Controller::enforceBasicAuth();
+}
+
+try {
   // Invoke appropriate handler
   call_user_func_array( array('Controller', $method),
     array($verb, $collection, $entry_id, &$code, &$return));
