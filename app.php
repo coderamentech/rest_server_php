@@ -33,8 +33,14 @@ class Controller {
   public static function handle__sessions($verb, $collection, $entry_id,
        &$code, &$return) {
 
-    $email = $_POST['email'];
-    $pass = $_POST['password'];
+    // Fetch request body
+    $body = file_get_contents('php://input');
+
+    // Treat as JSON data
+    $data = json_decode($body, true);
+
+    $email = $data['email'];
+    $pass = $data['password'];
     $status = Data::isUserExist($email, md5($pass));
 
     if ($status) {
